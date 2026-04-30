@@ -14,6 +14,11 @@ enum AppTypography {
         .custom("PlusJakartaSans-Bold", size: 34, relativeTo: .largeTitle)
     }
 
+    /// Splash / branding title on first launch overlay.
+    static func splashTitle() -> Font {
+        .custom("PlusJakartaSans-Bold", size: 36, relativeTo: .largeTitle)
+    }
+
     static func title3() -> Font {
         .custom("PlusJakartaSans-Bold", size: 22, relativeTo: .title3)
     }

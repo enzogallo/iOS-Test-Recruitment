@@ -10,13 +10,31 @@ import SwiftUI
 
 @main
 struct TheGoodCornerApp: App {
+    @State private var showSplash = true
+
     init() {
         NavigationBarAppearanceConfigurator.applyJakartaNavigationFonts()
     }
 
     var body: some Scene {
         WindowGroup {
-            ListingListView()
+            ZStack {
+                ListingListView()
+
+                if showSplash {
+                    SplashView()
+                        .transition(.opacity)
+                        .zIndex(1)
+                        .task {
+                            try? await Task.sleep(nanoseconds: 1_500_000_000)
+                            await MainActor.run {
+                                withAnimation(.easeOut(duration: 0.35)) {
+                                    showSplash = false
+                                }
+                            }
+                        }
+                }
+            }
         }
     }
 }

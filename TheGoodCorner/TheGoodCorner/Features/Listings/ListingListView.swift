@@ -20,17 +20,15 @@ struct ListingListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.appSurface.ignoresSafeArea()
+                AppScreenBackground()
 
                 mainContent
             }
-            .navigationTitle("app_title")
-            .navigationBarTitleDisplayMode(.large)
-            .searchable(
-                text: $viewModel.searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "search_prompt"
-            )
+            .toolbarBackground(.hidden, for: .navigationBar)
+            // We use an in-content search field so it stays visually under the logo header
+            // and above filters, regardless of OS navigation/search behavior.
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .onChange(of: viewModel.searchText) { _ in
                 viewModel.searchTextDidChange()
             }
@@ -63,26 +61,28 @@ struct ListingListView: View {
             errorEmptyState(error: loadError)
         } else {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    categoryFilterRow
+                LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
+                    Section(header: pinnedHeader) {
+                        categoryFilterRow
 
-                    if viewModel.displayedListings.isEmpty {
-                        searchEmptyState
-                            .frame(maxWidth: .infinity)
-                            .frame(minHeight: 200)
-                    } else {
-                        LazyVGrid(columns: gridColumns, alignment: .center, spacing: 12) {
-                            ForEach(viewModel.displayedListings) { listing in
-                                NavigationLink(value: listing) {
-                                    ListingCardView(
-                                        listing: listing,
-                                        categoryName: viewModel.categoryDisplayName(for: listing, locale: locale),
-                                        imageURL: thumbnailURL(for: listing)
-                                    )
+                        if viewModel.displayedListings.isEmpty {
+                            searchEmptyState
+                                .frame(maxWidth: .infinity)
+                                .frame(minHeight: 200)
+                        } else {
+                            LazyVGrid(columns: gridColumns, alignment: .center, spacing: 12) {
+                                ForEach(viewModel.displayedListings) { listing in
+                                    NavigationLink(value: listing) {
+                                        ListingCardView(
+                                            listing: listing,
+                                            categoryName: viewModel.categoryDisplayName(for: listing, locale: locale),
+                                            imageURL: thumbnailURL(for: listing)
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                    .frame(maxWidth: .infinity, alignment: .top)
+                                    .contentShape(Rectangle())
                                 }
-                                .buttonStyle(.plain)
-                                .frame(maxWidth: .infinity, alignment: .top)
-                                .contentShape(Rectangle())
                             }
                         }
                     }
@@ -91,6 +91,69 @@ struct ListingListView: View {
                 .padding(.bottom, 24)
             }
         }
+    }
+
+    private var header: some View {
+        HStack {
+            Spacer(minLength: 0)
+            Image("applogofeed")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 44)
+                .accessibilityLabel(Text("app_title"))
+            Spacer(minLength: 0)
+        }
+        .padding(.top, 6)
+        .padding(.bottom, 2)
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(Color.appSecondaryText)
+
+            TextField(L10n.string("search_prompt", locale: locale), text: $viewModel.searchText)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+
+            if !viewModel.searchText.isEmpty {
+                Button {
+                    viewModel.searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Color.appSecondaryText.opacity(0.85))
+                }
+                .accessibilityLabel(Text("action_clear_search"))
+            }
+        }
+        .font(AppTypography.body())
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("search_prompt"))
+    }
+
+    /// Sticky header: keeps branding + search visible while scrolling.
+    private var pinnedHeader: some View {
+        VStack(spacing: 10) {
+            header
+            // Extra lateral inset so the search field doesn't touch the glass edge.
+            searchField
+                .padding(.horizontal, 8)
+        }
+        .padding(.top, 6)
+        .padding(.bottom, 8)
+        // More "glass" than a plain material: iOS 26 uses `glassEffect`, iOS 16–25 falls back to ultra-thin material.
+        .appLiquidChromeCard(cornerRadius: 16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+        )
     }
 
     private var categoryFilterRow: some View {

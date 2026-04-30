@@ -8,6 +8,11 @@
 
 import SwiftUI
 
+private struct PresentedListingPhoto: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
 struct ListingDetailView: View {
     let listing: Listing
     let categoryName: String
@@ -15,11 +20,14 @@ struct ListingDetailView: View {
 
     @Environment(\.locale) private var locale
 
+    @State private var presentedPhoto: PresentedListingPhoto?
+
     private let heroCornerRadius: CGFloat = 20
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
+                // Hero: width bounded by ScrollView; image cannot force intrinsic width past screen.
                 heroImage
                     .frame(maxWidth: .infinity)
                     .aspectRatio(4 / 3, contentMode: .fill)
@@ -33,13 +41,26 @@ struct ListingDetailView: View {
                         .frame(height: 100)
                         .accessibilityHidden(true)
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if let url = preferredImageURL() {
+                            presentedPhoto = PresentedListingPhoto(url: url)
+                        }
+                    }
+                    .accessibilityAddTraits(preferredImageURL() != nil ? .isButton : [])
+                    .accessibilityHint("accessibility_photo_open_fullscreen")
 
                 VStack(alignment: .leading, spacing: 16) {
-                    HStack(alignment: .firstTextBaseline) {
+                    // `minWidth: 0` lets the row compress so HStack + ScrollView don’t expand past the screen (classic wrap bug).
+                    HStack(alignment: .firstTextBaseline, spacing: 10) {
                         Text(PriceFormatting.string(for: listing.price, locale: locale))
                             .font(AppTypography.priceLarge())
                             .foregroundStyle(Color.appPrice)
-                        Spacer(minLength: 0)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
+                            .multilineTextAlignment(.leading)
+                            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+
                         if listing.isUrgent {
                             Text("urgent_badge")
                                 .font(AppTypography.captionStrong())
@@ -48,6 +69,7 @@ struct ListingDetailView: View {
                                 .padding(.vertical, 6)
                                 .background(Color.appBrand)
                                 .clipShape(Capsule())
+                                .fixedSize()
                                 .accessibilityLabel(Text("accessibility_urgent_listing"))
                         }
                     }
@@ -55,6 +77,7 @@ struct ListingDetailView: View {
                     Text(listing.title)
                         .font(AppTypography.title3())
                         .foregroundStyle(Color.appNavy)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
 
                     detailChip(title: "detail_category_label", value: categoryName, systemImage: "square.grid.2x2")
@@ -70,24 +93,32 @@ struct ListingDetailView: View {
                     Text("detail_description_heading")
                         .font(AppTypography.headline())
                         .foregroundStyle(Color.appNavy)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
 
                     Text(listing.description)
                         .font(AppTypography.body())
                         .foregroundStyle(Color.appNavy.opacity(0.9))
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(20)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 .background(Color.appCard)
                 .clipShape(RoundedRectangle(cornerRadius: heroCornerRadius, style: .continuous))
                 .padding(.horizontal, 16)
-                .offset(y: -28)
+                // Prefer negative top padding over `offset`: avoids ScrollView + clipShape drawing glitches on some OS versions.
+                .padding(.top, -28)
             }
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, 24)
         }
-        .background(Color.appSurface)
+        .background(AppScreenBackground())
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .font(AppTypography.body())
+        .fullScreenCover(item: $presentedPhoto) { item in
+            ListingImageFullScreenView(url: item.url, onClose: { presentedPhoto = nil })
+        }
     }
 
     @ViewBuilder
@@ -101,10 +132,13 @@ struct ListingDetailView: View {
                         Color.appChip
                         ProgressView().tint(Color.appBrand)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 case let .success(image):
                     image
                         .resizable()
                         .scaledToFill()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
                 case .failure:
                     placeholderHero
                 @unknown default:
@@ -126,6 +160,7 @@ struct ListingDetailView: View {
                 .font(.largeTitle)
                 .foregroundStyle(Color.appSecondaryText)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityLabel(Text("accessibility_no_image"))
     }
 
@@ -151,11 +186,17 @@ struct ListingDetailView: View {
                 Text(title)
                     .font(AppTypography.caption())
                     .foregroundStyle(Color.appSecondaryText)
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                 Text(value)
                     .font(AppTypography.subheadline(weight: .semibold))
                     .foregroundStyle(Color.appNavy)
+                    .multilineTextAlignment(.leading)
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         }
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
     }
 }

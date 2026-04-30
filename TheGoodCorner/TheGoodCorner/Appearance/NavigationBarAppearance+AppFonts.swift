@@ -19,12 +19,12 @@ enum NavigationBarAppearanceConfigurator {
         let titleScaled = UIFontMetrics(forTextStyle: .headline).scaledFont(for: titleBase)
 
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
+        appearance.configureWithTransparentBackground()
         appearance.largeTitleTextAttributes = [.font: largeScaled]
         appearance.titleTextAttributes = [.font: titleScaled]
 
         let compact = UINavigationBarAppearance()
-        compact.configureWithDefaultBackground()
+        compact.configureWithTransparentBackground()
         compact.titleTextAttributes = [.font: titleScaled]
 
         UINavigationBar.appearance().standardAppearance = appearance

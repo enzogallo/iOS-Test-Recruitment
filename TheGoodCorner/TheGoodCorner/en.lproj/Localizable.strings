@@ -43,3 +43,9 @@
 "accessibility_no_image" = "No image available";
 
 "accessibility_photo_for_listing" = "Photo for %@.";
+
+"action_close_photo" = "Close";
+
+"accessibility_photo_open_fullscreen" = "Shows the photo full screen.";
+
+"action_clear_search" = "Clear search";

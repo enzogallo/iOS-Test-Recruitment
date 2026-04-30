@@ -28,7 +28,7 @@ struct ListingFeed: Codable, Equatable {
 }
 
 /// One classified ad line item; suitable for list rows and for pushing into a detail screen (no separate detail endpoint in the API).
-struct Listing: Codable, Equatable, Identifiable {
+struct Listing: Codable, Equatable, Identifiable, Hashable {
     let id: Int
     let categoryId: Int
     let title: String
@@ -54,7 +54,7 @@ struct Listing: Codable, Equatable, Identifiable {
 }
 
 /// Thumbnail paths as returned by the API; build absolute URLs with `APIConfiguration.absoluteURL(forServerRelativePath:)`.
-struct ImagesURL: Codable, Equatable {
+struct ImagesURL: Codable, Equatable, Hashable {
     let small: String?
     let thumb: String?
 

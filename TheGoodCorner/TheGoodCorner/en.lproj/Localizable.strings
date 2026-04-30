@@ -1,0 +1,45 @@
+/* The Good Corner — English. Server-provided listing titles/descriptions may remain in French per API data. */
+
+"app_title" = "The Good Corner";
+
+"search_prompt" = "Search listings";
+
+"loading_listings" = "Loading listings…";
+
+"error_empty_title" = "Could not load";
+
+"error_generic_detail" = "Something went wrong. Pull to refresh or try again.";
+
+"error_http_format" = "The server returned an error (%lld).";
+
+"error_transport_format" = "Network issue (%lld). Check that the API is running and the base URL is correct.";
+
+"action_retry" = "Retry";
+
+"empty_search_title" = "No listings match";
+
+"empty_search_subtitle" = "Try another search or category.";
+
+"filter_all" = "All";
+
+"accessibility_category_filters" = "Category filters";
+
+"accessibility_filter_by" = "Filter by %@";
+
+"listing_category_fallback" = "Category %lld";
+
+"urgent_badge" = "Urgent";
+
+"accessibility_urgent_listing" = "Urgent listing";
+
+"detail_category_label" = "Category";
+
+"detail_posted_label" = "Posted";
+
+"detail_description_heading" = "Description";
+
+"accessibility_listing_image" = "Listing image for %@";
+
+"accessibility_no_image" = "No image available";
+
+"accessibility_photo_for_listing" = "Photo for %@.";

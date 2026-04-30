@@ -1,0 +1,45 @@
+/* The Good Corner — French (default app language). API listing text stays server-provided (often French). */
+
+"app_title" = "The Good Corner";
+
+"search_prompt" = "Rechercher des annonces";
+
+"loading_listings" = "Chargement des annonces…";
+
+"error_empty_title" = "Impossible de charger";
+
+"error_generic_detail" = "Un problème est survenu. Tirez pour actualiser ou réessayez.";
+
+"error_http_format" = "Le serveur a renvoyé une erreur (%lld).";
+
+"error_transport_format" = "Problème réseau (%lld). Vérifiez que l’API tourne et que l’URL de base est correcte.";
+
+"action_retry" = "Réessayer";
+
+"empty_search_title" = "Aucune annonce";
+
+"empty_search_subtitle" = "Essayez une autre recherche ou une autre catégorie.";
+
+"filter_all" = "Tout";
+
+"accessibility_category_filters" = "Filtres par catégorie";
+
+"accessibility_filter_by" = "Filtrer par %@";
+
+"listing_category_fallback" = "Catégorie %lld";
+
+"urgent_badge" = "Urgent";
+
+"accessibility_urgent_listing" = "Annonce urgente";
+
+"detail_category_label" = "Catégorie";
+
+"detail_posted_label" = "Publication";
+
+"detail_description_heading" = "Description";
+
+"accessibility_listing_image" = "Photo de l’annonce : %@";
+
+"accessibility_no_image" = "Aucune image";
+
+"accessibility_photo_for_listing" = "Photo pour %@.";

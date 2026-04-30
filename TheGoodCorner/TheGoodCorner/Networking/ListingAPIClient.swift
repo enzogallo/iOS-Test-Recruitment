@@ -25,7 +25,7 @@ struct DefaultListingAPIClient: ListingAPIClient {
     /// - Parameters:
     ///   - configuration: Base URL; defaults to the simulator loopback.
     ///   - session: Defaults to `.shared`; replace with a stub session in unit tests if needed.
-    init(configuration: APIConfiguration = .defaultSimulator, session: URLSession = .shared) {
+    nonisolated init(configuration: APIConfiguration = .defaultSimulator, session: URLSession = .shared) {
         self.configuration = configuration
         self.session = session
         self.decoder = JSONDecoder()

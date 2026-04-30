@@ -1,31 +1,64 @@
+//
+//  TheGoodCornerTests.swift
+//  TheGoodCornerTests
+//
+//  Codable round-trip tests using bundled JSON fixtures—no network or running server required.
+//
+
 import XCTest
 @testable import TheGoodCorner
 
-final class TheGoodCornerTests: XCTestCase {
+/// How this target works (quick mental model):
+/// - **XCTest** runs methods whose names start with `test` on subclasses of `XCTestCase`.
+/// - `XCTAssert*` checks expectations; if one fails, the test turns red and shows the message.
+/// - Tests run in the **simulator or Mac** (host) without you tapping the app; they are meant to be **deterministic** (no live server for our decoding tests).
+final class ListingFeedDecodingTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    /// Loads a JSON file that was added to the **TheGoodCornerTests** target (same folder / Resources).
+    /// If Xcode cannot find the file, we get a clear failure — usually means the file is not in the test bundle (target membership).
+    private func loadListingFeedFixture() throws -> Data {
+        let bundle = Bundle(for: ListingFeedDecodingTests.self)
+        if let url = bundle.url(forResource: "listing_feed_fixture", withExtension: "json", subdirectory: "Resources")
+            ?? bundle.url(forResource: "listing_feed_fixture", withExtension: "json") {
+            return try Data(contentsOf: url)
         }
+        XCTFail("Could not find listing_feed_fixture.json in test bundle \(bundle.bundlePath)")
+        throw NSError(domain: "Tests", code: 0)
     }
 
+    func testListingFeedDecodesFromFixture() throws {
+        let data = try loadListingFeedFixture()
+        let decoder = JSONDecoder()
+        let feed = try decoder.decode(ListingFeed.self, from: data)
+
+        XCTAssertEqual(feed.page, 1)
+        XCTAssertEqual(feed.total, 300)
+        XCTAssertEqual(feed.items.count, 1)
+
+        let first = try XCTUnwrap(feed.items.first)
+        XCTAssertEqual(first.id, 1547408955)
+        XCTAssertEqual(first.categoryId, 7)
+        XCTAssertTrue(first.isUrgent)
+        XCTAssertEqual(first.price, 10, accuracy: 0.001)
+        XCTAssertEqual(first.creationDate, "2019-11-06T11:22:35Z")
+        XCTAssertNotNil(first.imagesURL?.small)
+    }
+
+    /// Same schema as `/categories` response: a JSON **array** of objects (not an envelope).
+    func testCategoryArrayDecodesFromInlineJSON() throws {
+        let json = try XCTUnwrap(
+            """
+            [
+              {"id": 1, "name": "Vehicule"},
+              {"id": 8, "name": "Multimedia"}
+            ]
+            """.data(using: .utf8)
+        )
+
+        let categories = try JSONDecoder().decode(Array<ListingCategory>.self, from: json)
+
+        XCTAssertEqual(categories.count, 2)
+        XCTAssertEqual(categories[0].id, 1)
+        XCTAssertEqual(categories[1].name, "Multimedia")
+    }
 }

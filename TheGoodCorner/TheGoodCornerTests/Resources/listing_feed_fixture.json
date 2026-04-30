@@ -1,0 +1,21 @@
+{
+  "page": 1,
+  "has_more": false,
+  "limit": 300,
+  "total": 300,
+  "items": [
+    {
+      "id": 1547408955,
+      "category_id": 7,
+      "title": "Vinyle Elliott Murphy Just A Story From America",
+      "description": "A vendre 1 vinyle de Elliott Murphy.",
+      "price": 10,
+      "creation_date": "2019-11-06T11:22:35Z",
+      "is_urgent": true,
+      "images_url": {
+        "small": "/images/ad-small/5877f940762daca3548cb19d89324098fb116356.jpg",
+        "thumb": "/images/ad-thumb/5877f940762daca3548cb19d89324098fb116356.jpg"
+      }
+    }
+  ]
+}

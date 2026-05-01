@@ -12,10 +12,15 @@ struct ListingCardView: View {
     let listing: Listing
     let categoryName: String
     let imageURL: URL?
+    /// Horizontal rail preview: reserve exactly two title lines so every card has the same height (grid ignores this).
+    var uniformRailHeight: Bool = false
 
     @Environment(\.locale) private var locale
 
     private let cornerRadius: CGFloat = 16
+
+    /// Two lines of `subheadline` semibold — fixed slot so 1-line and 2-line titles don’t change card height.
+    private var railTitleBlockHeight: CGFloat { 40 }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -27,7 +32,8 @@ struct ListingCardView: View {
                     .foregroundStyle(Color.appNavy)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .modifier(TitleVerticalSizing(uniformRailHeight: uniformRailHeight, railTitleBlockHeight: railTitleBlockHeight))
 
                 Text(PriceFormatting.string(for: listing.price, locale: locale))
                     .font(AppTypography.headline())
@@ -120,5 +126,20 @@ struct ListingCardView: View {
             parts.append(L10n.string("urgent_badge", locale: locale))
         }
         return parts.joined(separator: ", ")
+    }
+}
+
+private struct TitleVerticalSizing: ViewModifier {
+    let uniformRailHeight: Bool
+    let railTitleBlockHeight: CGFloat
+
+    func body(content: Content) -> some View {
+        if uniformRailHeight {
+            content
+                .frame(height: railTitleBlockHeight, alignment: .top)
+        } else {
+            content
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }

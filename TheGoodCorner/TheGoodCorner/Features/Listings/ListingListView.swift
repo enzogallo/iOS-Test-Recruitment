@@ -15,6 +15,9 @@ struct ListingListView: View {
     /// Fixed card width inside horizontal rails (grid flexibility is handled by the outer `ScrollView`).
     private let railCardWidth: CGFloat = 172
 
+    /// Fixed total height for rail preview cards so every cell in a horizontal row matches (image + text block).
+    private let railPreviewCardHeight: CGFloat = 268
+
     /// Collapsed rail shows at most this many cards; “Voir plus” appears only when there are more.
     private let railPreviewItemCount = 3
 
@@ -97,10 +100,19 @@ struct ListingListView: View {
                         }
                     }
                 }
+                .id(feedScrollIdentity)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
             }
         }
+    }
+
+    /// Forces the feed stack to remeasure when filters or expansion change (avoids LazyVStack + ScrollView showing a blank viewport until the user scrolls).
+    private var feedScrollIdentity: String {
+        let selected = viewModel.selectedCategoryIds.sorted()
+        let expanded = expandedRailIds.sorted()
+        let rails = viewModel.visibleCategoryRailSections(locale: locale).map(\.id)
+        return "\(selected)-\(expanded)-\(rails)"
     }
 
     /// Single selected category with more than `railPreviewItemCount` listings → expand; any other case → collapsed.
@@ -190,12 +202,14 @@ struct ListingListView: View {
             let card = ListingCardView(
                 listing: listing,
                 categoryName: viewModel.categoryDisplayName(for: listing, locale: locale),
-                imageURL: thumbnailURL(for: listing)
+                imageURL: thumbnailURL(for: listing),
+                uniformRailHeight: !grid
             )
             if grid {
                 card.frame(maxWidth: .infinity, alignment: .top)
             } else {
-                card.frame(width: railCardWidth, alignment: .top)
+                card
+                    .frame(width: railCardWidth, height: railPreviewCardHeight, alignment: .top)
             }
         }
         .buttonStyle(.plain)

@@ -22,6 +22,12 @@ enum L10n {
         return String(format: template, locale: locale, arg)
     }
 
+    /// Keys such as `accessibility_category_rail` use `%@` and `%lld` in the strings files.
+    static func format(_ key: String, locale: Locale, _ arg: String, count: Int) -> String {
+        let template = string(key, locale: locale)
+        return String(format: template, locale: locale, arg, count)
+    }
+
     static func categoryFallback(categoryId: Int, locale: Locale) -> String {
         let format = string("listing_category_fallback", locale: locale)
         return String(format: format, locale: locale, categoryId)

@@ -18,7 +18,15 @@
 
 "empty_search_title" = "Aucune annonce";
 
-"empty_search_subtitle" = "Essayez une autre recherche ou une autre catégorie.";
+"empty_search_subtitle" = "Essayez une autre recherche.";
+
+"empty_feed_title" = "Aucune annonce pour le moment";
+
+"empty_feed_subtitle" = "Revenez plus tard ou actualisez le fil.";
+
+"section_other_category" = "Autres";
+
+"accessibility_category_rail" = "%@, %lld annonces";
 
 "filter_all" = "Tout";
 
@@ -49,3 +57,17 @@
 "accessibility_photo_open_fullscreen" = "Affiche la photo en plein écran.";
 
 "action_clear_search" = "Effacer la recherche";
+
+"action_see_more" = "Voir plus";
+
+"action_see_less" = "Voir moins";
+
+"accessibility_see_more_rail" = "Afficher toutes les annonces de %@ en liste";
+
+"accessibility_see_less_rail" = "Revenir à la liste horizontale pour %@";
+
+"empty_filter_title" = "Aucune catégorie correspondante";
+
+"empty_filter_subtitle" = "Modifiez votre sélection ou affichez toutes les catégories.";
+
+"action_clear_filters" = "Tout afficher";

@@ -18,7 +18,15 @@
 
 "empty_search_title" = "No listings match";
 
-"empty_search_subtitle" = "Try another search or category.";
+"empty_search_subtitle" = "Try another search.";
+
+"empty_feed_title" = "No listings right now";
+
+"empty_feed_subtitle" = "Check back later or pull to refresh.";
+
+"section_other_category" = "Other";
+
+"accessibility_category_rail" = "%@, %lld listings";
 
 "filter_all" = "All";
 
@@ -49,3 +57,17 @@
 "accessibility_photo_open_fullscreen" = "Shows the photo full screen.";
 
 "action_clear_search" = "Clear search";
+
+"action_see_more" = "See more";
+
+"action_see_less" = "See less";
+
+"accessibility_see_more_rail" = "Show all listings in %@ as a vertical list";
+
+"accessibility_see_less_rail" = "Return to horizontal list for %@";
+
+"empty_filter_title" = "No matching categories";
+
+"empty_filter_subtitle" = "Change your selection or show all categories.";
+
+"action_clear_filters" = "Show all";

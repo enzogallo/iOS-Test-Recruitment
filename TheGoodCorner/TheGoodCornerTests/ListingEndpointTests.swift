@@ -18,6 +18,11 @@ final class ListingEndpointTests: XCTestCase {
         XCTAssertEqual(url.absoluteString, "http://127.0.0.1:8080/listings?query=vinyle")
     }
 
+    func testListingsURLOmitsQueryWhenNil() throws {
+        let url = try ListingEndpoint.listingsURL(baseURL: baseURL, page: nil, limit: nil, query: nil)
+        XCTAssertEqual(url.absoluteString, "http://127.0.0.1:8080/listings")
+    }
+
     func testCategoriesURL() throws {
         let url = try ListingEndpoint.categoriesURL(baseURL: baseURL)
         XCTAssertEqual(url.absoluteString, "http://127.0.0.1:8080/categories")

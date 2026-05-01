@@ -39,6 +39,10 @@ final class ListingListViewModel: ObservableObject {
     let configuration: APIConfiguration
 
     private var searchDebounceTask: Task<Void, Never>?
+    /// In-flight `GET` work; cancelled when a newer load or debounced search replaces it.
+    private var listingsFetchTask: Task<Void, Never>?
+    /// Lets `defer` clear `isLoading` only for the latest fetch (avoids races when one run supersedes another).
+    private var fetchSerial = 0
 
     init(
         apiClient: ListingAPIClient = DefaultListingAPIClient(),
@@ -116,37 +120,66 @@ final class ListingListViewModel: ObservableObject {
     }
 
     func load() async {
-        await fetchListings(preserveSearchQuery: true)
+        await runFetchReplacingInFlight(preserveSearchQuery: true)
     }
 
     func retry() async {
-        await fetchListings(preserveSearchQuery: true)
+        await runFetchReplacingInFlight(preserveSearchQuery: true)
     }
 
     /// Invoked when `searchText` changes from the view; waits then refetches with `query` (server-side search).
     func searchTextDidChange() {
         searchDebounceTask?.cancel()
-        searchDebounceTask = Task {
+        searchDebounceTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: 350_000_000)
             guard !Task.isCancelled else { return }
-            await fetchListings(preserveSearchQuery: true)
+            await self.runFetchReplacingInFlight(preserveSearchQuery: true)
+        }
+    }
+
+    /// Cancels any in-flight listing fetch, then runs a new one. `URLSession` work inherits `Task` cancellation.
+    private func runFetchReplacingInFlight(preserveSearchQuery: Bool) async {
+        listingsFetchTask?.cancel()
+        let task = Task { @MainActor in
+            await self.fetchListings(preserveSearchQuery: preserveSearchQuery)
+        }
+        listingsFetchTask = task
+        do {
+            try await task.value
+        } catch is CancellationError {
+            // `Task.cancel()` on a replaced fetch; safe to ignore (latest run owns published state).
         }
     }
 
     private func fetchListings(preserveSearchQuery: Bool) async {
+        fetchSerial += 1
+        let serial = fetchSerial
         isLoading = true
         loadError = nil
+        defer {
+            if serial == fetchSerial {
+                isLoading = false
+            }
+        }
+
         let query = preserveSearchQuery ? trimmedSearchQuery : nil
         do {
             async let categoriesTask = apiClient.fetchCategories()
             async let feedTask = apiClient.fetchListingFeed(page: nil, limit: nil, query: query)
             let (fetchedCategories, feed) = try await (categoriesTask, feedTask)
+            try Task.checkCancellation()
+            guard serial == fetchSerial else { return }
             categories = fetchedCategories.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
             listings = feed.items
+            loadError = nil
+        } catch is CancellationError {
+            return
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            return
         } catch {
+            guard serial == fetchSerial else { return }
             loadError = mapLoadError(from: error)
         }
-        isLoading = false
     }
 
     private func mapLoadError(from error: Error) -> ListingLoadError {

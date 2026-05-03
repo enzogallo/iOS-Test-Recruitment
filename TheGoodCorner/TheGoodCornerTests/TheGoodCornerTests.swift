@@ -26,6 +26,8 @@ final class ListingFeedDecodingTests: XCTestCase {
         throw NSError(domain: "Tests", code: 0)
     }
 
+    /// **Subject:** `ListingFeed` + nested `Listing` match the JSON envelope from `GET /listings` (`listing_feed_fixture.json`).
+    /// **Checks:** envelope fields (`page`, `total`, `items`), first item fields (`id`, `category_id`, `price`, dates, `images_url.small`).
     func testListingFeedDecodesFromFixture() throws {
         let data = try loadListingFeedFixture()
         let decoder = JSONDecoder()
@@ -44,7 +46,8 @@ final class ListingFeedDecodingTests: XCTestCase {
         XCTAssertNotNil(first.imagesURL?.small)
     }
 
-    /// Same schema as `/categories` response: a JSON **array** of objects (not an envelope).
+    /// **Subject:** decoding a raw JSON **array** (not an object envelope), same shape as `GET /categories`.
+    /// **Checks:** `Array<ListingCategory>` decodes; `id` and `name` map from snake-free keys.
     func testCategoryArrayDecodesFromInlineJSON() throws {
         let json = try XCTUnwrap(
             """

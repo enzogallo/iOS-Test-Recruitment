@@ -83,6 +83,8 @@ final class ListingListViewModelTests: XCTestCase {
     private let baseURL = URL(string: "http://127.0.0.1:8080")!
     private let locale = Locale(identifier: "fr_FR")
 
+    /// **Subject:** `ListingListViewModel.categoryRailSections(locale:)` after `load()`.
+    /// **Checks:** rails are ordered by localized category name; listings whose `category_id` is absent from the API map appear under a synthetic “Other” rail (`id == -1`).
     @MainActor
     func testCategoryRailsSortByCategoryNameAndBucketUnknownCategoryIds() async throws {
         let categories = [
@@ -104,6 +106,8 @@ final class ListingListViewModelTests: XCTestCase {
         XCTAssertEqual(rails.last?.listings.map(\.id), [20])
     }
 
+    /// **Subject:** `trimmedSearchQuery`, `toggleCategoryFilter`, `clearCategoryFilters`, and `visibleCategoryRailSections(locale:)`.
+    /// **Checks:** search text is trimmed for API use; when no category filter is active, all rails stay visible; toggling on/off narrows or restores rails as expected.
     @MainActor
     func testVisibleRailsFilterBySelectedCategoryIds() async throws {
         let categories = [
@@ -133,6 +137,8 @@ final class ListingListViewModelTests: XCTestCase {
         XCTAssertEqual(vm.visibleCategoryRailSections(locale: locale).map(\.id), [1, 2])
     }
 
+    /// **Subject:** overlapping `load()` calls when the first network response is slower than the second (`DelayingThenFastListingAPIClient`).
+    /// **Checks:** only the latest completed fetch updates `listings`; the delayed first response must not overwrite newer data or surface `loadError`.
     @MainActor
     func testSupersededFetchDoesNotApplyFirstResponseAfterSecondLoad() async throws {
         let categories = [ListingCategory(id: 1, name: "A")]
